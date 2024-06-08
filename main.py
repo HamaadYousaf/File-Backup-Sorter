@@ -5,24 +5,24 @@ import time
 import schedule
 import threading
 
-source_dir = r""
-dest_dir = r""
 schedule_backup_active = False
 schedule_sort_active = False
 scheduleTime = "12:00"
 
-def backup(source, dest):
+def backup(source_dir):
+    dest_dir = source_dir + "_backups"
     backup_date = str(datetime.now())[:-10].replace(" ", "_").replace(":", "-")
-    backup_dir = os.path.join(dest, backup_date)
+    backup_dir = os.path.join(dest_dir, backup_date)
 
     try:
-        shutil.copytree(source, backup_dir)
-        print(f"Folder copied to: {backup_dir}")
+        shutil.copytree(source_dir, backup_dir)
+        return "Backup Complete"
     except FileExistsError:
-        print(f"Folder already exists in: {dest}")
+        return f"Folder already exists in: {dest_dir}"
 
         
-def schedule_backup():
+def schedule_backup(source_dir):
+    dest_dir = source_dir + "\\" + "backups"
     schedule.every().day.at(scheduleTime).do(lambda: backup(source_dir, dest_dir))
 
     while schedule_backup_active:
@@ -30,7 +30,7 @@ def schedule_backup():
         time.sleep(60)
 
 
-def sort():
+def sort(source_dir):
     folder_type_map = {
         "png" : "media",
         "jpeg" : "media",
@@ -51,10 +51,11 @@ def sort():
 
         if folder_dest:
             if os.path.exists(source_dir + "\\" + folder_dest + "\\" +file):
-                print(f"File \"{file}\" already exists in folder \"{folder_dest}\"")
+                return f"File \"{file}\" already exists in folder \"{folder_dest}\""
             else:
                 shutil.move(source_dir + "\\" + file, source_dir + "\\" + folder_dest + "\\" +file)
 
+    return "Sorting Complete"
 
 def schedule_sort():
     schedule.every().day.at(scheduleTime).do(lambda: sort())
@@ -69,4 +70,4 @@ if __name__ == "__main__":
         t1 = threading.Thread(target=schedule_backup, name='t1')
         t1.start()
 
-    sort()
+    print("here")
