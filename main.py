@@ -31,18 +31,29 @@ def schedule_backup():
 
 
 def sort():
+    folder_type_map = {
+        "png" : "media",
+        "jpeg" : "media",
+        "txt" : "text",
+        "pdf" : "documents",
+        "docx" : "documents",
+        "csv" : "spreadsheets",
+    }
     files = os.listdir(source_dir)
-    folders = ["media", "text", "pdf", "spreadsheets"]
 
-    for folder in folders:
+    for folder in folder_type_map.values():
         if not os.path.exists(source_dir+"\\"+folder):
             os.mkdir(source_dir+"\\"+folder)
 
     for file in files:
-        if(os.path.exists(source_dir+"\\spreadsheets\\"+file)):
-            print(f"File \"{file}\" already exists in folder \"spreadsheets\"")
-        elif ".csv" in file:
-            shutil.move(source_dir + "\\" + file, source_dir+"\\spreadsheets\\"+file)
+        file_type = file.split(".")[-1]
+        folder_dest = folder_type_map.get(file_type)
+
+        if folder_dest:
+            if os.path.exists(source_dir + "\\" + folder_dest + "\\" +file):
+                print(f"File \"{file}\" already exists in folder \"{folder_dest}\"")
+            else:
+                shutil.move(source_dir + "\\" + file, source_dir + "\\" + folder_dest + "\\" +file)
 
 
 def schedule_sort():
