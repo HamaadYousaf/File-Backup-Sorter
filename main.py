@@ -3,11 +3,6 @@ import shutil
 from datetime import datetime
 import time
 import schedule
-import threading
-
-schedule_backup_active = False
-schedule_sort_active = False
-scheduleTime = "12:00"
 
 def backup(source_dir):
     dest_dir = source_dir + "_backups"
@@ -21,11 +16,10 @@ def backup(source_dir):
         return f"Folder already exists in: {dest_dir}"
 
         
-def schedule_backup(source_dir):
-    dest_dir = source_dir + "\\" + "backups"
-    schedule.every().day.at(scheduleTime).do(lambda: backup(source_dir, dest_dir))
+def schedule_backup(source_dir, backup_active, schedule_time):
+    schedule.every().day.at(schedule_time).do(lambda: backup(source_dir))
 
-    while schedule_backup_active:
+    while backup_active:
         schedule.run_pending()
         time.sleep(60)
 
@@ -57,17 +51,9 @@ def sort(source_dir):
 
     return "Sorting Complete"
 
-def schedule_sort():
-    schedule.every().day.at(scheduleTime).do(lambda: sort())
+def schedule_sort(source_dir, sort_active, schedule_time):
+    schedule.every().day.at(schedule_time).do(lambda: sort(source_dir))
 
-    while schedule_sort_active:
+    while sort_active:
         schedule.run_pending()
         time.sleep(60)
-
-
-if __name__ == "__main__":
-    if schedule_backup_active:
-        t1 = threading.Thread(target=schedule_backup, name='t1')
-        t1.start()
-
-    print("here")
